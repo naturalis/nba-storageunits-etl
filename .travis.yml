@@ -1,0 +1,19 @@
+language: shell
+
+services:
+  - docker
+
+before_install:
+  - pwd
+  - export DOCKER_TAG=latest
+
+script:
+  - docker build -t naturalis/nba-storageunits-etl:$DOCKER_TAG ./
+
+after_success:
+  - docker login -u maartenschermer -p $DOCKER_PASS
+  - docker tag naturalis/nba-storageunits-etl:$DOCKER_TAG naturalis/nba-storageunits-etl:$DOCKER_TAG
+  - docker push naturalis/nba-storageunits-etl:$DOCKER_TAG
+  - docker logout
+
+  
