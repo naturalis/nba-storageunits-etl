@@ -11,7 +11,7 @@ DROP_INDEX=$2
 if [ "$INDIR" == "" ]
 then
 	echo "error: no input dir"
-	exit
+	exit 1
 fi
 
 if [[ $DROP_INDEX = "drop_index" ]]; then
