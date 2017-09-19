@@ -1,12 +1,11 @@
 #!/bin/bash
 
-#SERVER=http://172.18.0.2:9200
 SERVER=$ES_SERVER
-INDEX=storageunits
-DOCUMENT=Storageunit
-
 INDIR=$1
 DROP_INDEX=$2
+
+INDEX=storageunits
+DOCUMENT=Storageunit
 
 if [ "$INDIR" == "" ]
 then
@@ -14,17 +13,22 @@ then
 	exit 1
 fi
 
+function create_index {
+  curl -XPUT "$SERVER/$INDEX"
+  DATA=$(cat mapping.json)
+  curl -XPUT "$SERVER/$INDEX/_mapping/$DOCUMENT" -d "$DATA"
+}  
+
 if [[ $DROP_INDEX = "drop_index" ]]; then
   echo "recreating index"
   curl -XDELETE "$SERVER/$INDEX"
-  echo
-  curl -XPUT "$SERVER/$INDEX"
-  echo
-  curl -XPUT "$SERVER/$INDEX/_settings" -d '{"index" :{"number_of_replicas" : 0}}'
-  echo
-  DATA=$(cat datamodel_dummy.json)
-  curl -XPOST "$SERVER/$INDEX/$DOCUMENT/1" -d "$DATA"
-  echo
+  create_index
+else
+  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$SERVER/$INDEX")
+  if [[ $HTTP_CODE = "404" ]]; then  
+    echo "creating index"
+    create_index
+  fi
 fi
 
 echo "importing new $INDEX/$DOCUMENT documents"
@@ -37,7 +41,4 @@ do
     curl -XPOST "$SERVER/$INDEX/$DOCUMENT/_bulk"  --data-binary @$f
   fi
 done
-echo
-curl -XDELETE "$SERVER/$INDEX/1"
-echo
 echo "done"
