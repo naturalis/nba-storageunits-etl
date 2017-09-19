@@ -8,7 +8,7 @@ DOCUMENT=Storageunit
 INDIR=$1
 DROP_INDEX=$2
 
-if [ "$INDIR" == ""  ]
+if [ "$INDIR" == "" ]
 then
 	echo "error: no input dir"
 	exit
