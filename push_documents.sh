@@ -19,12 +19,13 @@ function create_index {
   curl -XPUT "$SERVER/$INDEX/_mapping/$DOCUMENT" -d "$DATA"
 }  
 
-if [[ $DROP_INDEX = "drop_index" ]]; then
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$SERVER/$INDEX")
+
+if [[ $DROP_INDEX = "drop_index" && $HTTP_CODE = "200" ]]; then
   echo "recreating index"
   curl -XDELETE "$SERVER/$INDEX"
   create_index
 else
-  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$SERVER/$INDEX")
   if [[ $HTTP_CODE = "404" ]]; then  
     echo "creating index"
     create_index
