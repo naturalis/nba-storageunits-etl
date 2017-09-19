@@ -28,7 +28,6 @@ if [[ $DROP_INDEX = "drop_index" ]]; then
 fi
 
 echo "importing new $INDEX/$DOCUMENT documents"
-#FILES=input/*.bulk
 FILES=$INDIR/*.bulk
 
 for f in $FILES
